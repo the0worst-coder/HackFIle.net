@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hacker Hub</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-icons@0.294.0/dist/umd/lucide.min.css">
+  <style>
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background-color: #000;
+      color: #00FF00;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Matrix Background */
+    #matrix-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 4rem;
+      }
+    }
+
+    header p {
+      font-size: 1.25rem;
+      color: #00CC00;
+      max-width: 42rem;
+      margin: 0 auto;
+    }
+
+    /* Hacks Grid */
+    .hacks-grid {
+      max-width: 64rem;
+      margin: 0 auto 4rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .hacks-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Hack Category */
+    .hack-category {
+      background-color: #000;
+      border: 2px solid #00FF00;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    }
+
+    .hack-category h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #00CC00;
+      text-align: center;
+    }
+
+    .hack-list {
+      list-style: none;
+    }
+
+    .hack-item {
+      padding: 0.75rem;
+      border: 1px solid #00FF00;
+      border-radius: 0.375rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .hack-item:hover {
+      background-color: rgba(0, 128, 0, 0.3);
+    }
+
+    /* Links Section */
+    .links-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .links-section {
+        flex-direction: row;
+      }
+    }
+
+    .link-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      text-decoration: none;
+      color: white;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .link-button svg {
+      margin-right: 0.5rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .youtube-button {
+      background-color: #FF0000;
+    }
+
+    .youtube-button:hover {
+      background-color: #CC0000;
+    }
+
+    .discord-button {
+      background-color: #5865F2;
+    }
+
+    .discord-button:hover {
+      background-color: #4752C4;
+    }
+
+    .video-button {
+      background-color: #00AA00;
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+
+    .video-button:hover {
+      background-color: #008800;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: #00CC00;
+      font-size: 0.875rem;
+      margin-top: 3rem;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.75);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background-color: #000;
+      border: 1px solid #00FF00;
+      color: #00FF00;
+      max-width: 64rem;
+      width: 90vw;
+      max-height: 80vh;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1rem;
+      border-bottom: 1px solid #00FF00;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      color: #00FF00;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #00FF00;
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      color: white;
+      background-color: rgba(0, 128, 0, 0.3);
+      border-radius: 0.25rem;
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .copy-button {
+      background-color: #000;
+      border: 1px solid #00FF00;
+      color: #00FF00;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .copy-button:hover {
+      background-color: rgba(0, 128, 0, 0.3);
+      color: white;
+    }
+
+    .copy-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .copy-button svg {
+      margin-right: 0.5rem;
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .code-container {
+      margin-top: 1rem;
+      background-color: #000;
+      border: 1px solid #00FF00;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      overflow: auto;
+      max-height: 30vh;
+    }
+
+    .code-content {
+      font-family: monospace;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+
+    .no-code {
+      font-family: monospace;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    /* Loading Screen */
+    .loading-screen {
+      min-height: 100vh;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .loading-title {
+      color: #00FF00;
+      font-size: 2rem;
+      font-family: monospace;
+      margin-bottom: 2rem;
+      animation: pulse 2s infinite;
+    }
+
+    @media (min-width: 768px) {
+      .loading-title {
+        font-size: 2.5rem;
+      }
+    }
+
+    .loading-subtitle {
+      color: #00CC00;
+      font-size: 1.25rem;
+      font-family: monospace;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 768px) {
+      .loading-subtitle {
+        font-size: 1.5rem;
+      }
+    }
+
+    .loading-bar {
+      width: 16rem;
+      height: 0.5rem;
+      background-color: #003300;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    .loading-progress {
+      height: 100%;
+      background-color: #00FF00;
+      animation: loading 3s ease-in-out;
+    }
+
+    .loading-status {
+      margin-top: 2rem;
+      color: #00AA00;
+      font-family: monospace;
+      font-size: 0.875rem;
+    }
+
+    /* Login Screen */
+    .login-screen {
+      min-height: 100vh;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .login-container {
+      z-index: 10;
+      background-color: #000;
+      border: 2px solid #00FF00;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      width: 100%;
+      max-width: 28rem;
+    }
+
+    .login-title {
+      color: #00FF00;
+      font-size: 1.875rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      display: block;
+      color: #00CC00;
+      margin-bottom: 0.5rem;
+      font-family: monospace;
+    }
+
+    .form-input {
+      width: 100%;
+      background-color: #000;
+      border: 2px solid #00FF00;
+      color: #00FF00;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      font-family: monospace;
+    }
+
+    .form-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.5);
+    }
+
+    .login-button {
+      width: 100%;
+      background-color: #00AA00;
+      color: white;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: background-color 0.2s;
+    }
+
+    .login-button:hover {
+      background-color: #008800;
+    }
+
+    .login-button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .login-status {
+      margin-top: 1.5rem;
+      color: #00CC00;
+      font-size: 0.75rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    .spinner {
+      border: 3px solid rgba(0, 255, 0, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid #00FF00;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes loading {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* Hide sections based on app state */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Matrix Background Canvas -->
+  <canvas id="matrix-canvas"></canvas>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="z-10 text-center">
+      <div class="loading-title">INITIALIZING SECURE CONNECTION</div>
+      <div id="loading-subtitle" class="loading-subtitle">Connecting to hacker online file</div>
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+      <div class="loading-status">Establishing encrypted channel...</div>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-screen hidden">
+    <div class="login-container">
+      <h1 class="login-title">HACKER ACCESS</h1>
+      <div class="login-form">
+        <div class="form-group">
+          <label for="username" class="form-label">USERNAME</label>
+          <input type="text" id="username" value="hacker" readonly class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="password" class="form-label">PASSWORD</label>
+          <input type="text" id="password" value="アァカサタナハマヤャラワガザダバパ" readonly class="form-input">
+        </div>
+        <button id="login-button" class="login-button">LOGIN</button>
+      </div>
+      <div class="login-status">SECURE CONNECTION ESTABLISHED</div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="main-app" class="hidden">
+    <div class="container">
+      <header>
+        <h1>HACKER HUB</h1>
+        <p>Your ultimate resource for game hacks and exploits. Click on any hack to view and copy the code.</p>
+      </header>
+
+      <div class="hacks-grid">
+        <!-- Prodigy Hacks -->
+        <div class="hack-category">
+          <h2>Prodigy Hacks</h2>
+          <ul id="prodigy-hacks" class="hack-list"></ul>
+        </div>
+
+        <!-- Cookie Clicker Hacks -->
+        <div class="hack-category">
+          <h2>Cookie Clicker Hacks</h2>
+          <ul id="cookie-clicker-hacks" class="hack-list"></ul>
+        </div>
+      </div>
+
+      <div class="links-section">
+        <a href="https://www.youtube.com/channel/UCn746y2dVD49mU81Vh1kWoQ" target="_blank" rel="noopener noreferrer" class="link-button youtube-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-youtube"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+          YouTube Channel
+        </a>
+
+        <a href="https://discord.gg/4UUfKvtK4B" target="_blank" rel="noopener noreferrer" class="link-button discord-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-disc"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>
+          Join Discord
+        </a>
+
+        <button class="link-button video-button" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-video"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
+          Guide Video (Coming Soon)
+        </button>
+      </div>
+
+      <footer>
+        <p>Disclaimer: These hacks are for educational purposes only. Use at your own risk.</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Code Modal -->
+  <div id="code-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title" class="modal-title">Hack Title</h2>
+        <button id="modal-close" class="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+        <button id="copy-button" class="copy-button">
+          <svg id="copy-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check hidden"><path d="M20 6 9 17l-5-5"/></svg>
+          <span id="copy-text">Copy Code</span>
+        </button>
+        <div class="code-container">
+          <div id="code-content" class="code-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initial hack data
+    const initialHacksByCategory = {
+      Prodigy: [
+        {
+          id: "set_owner_lv",
+          title: "Set Owner LV",
+          category: "Prodigy",
+          code: `(function(_0x2d8c7f,_0x4a2bc2){function _0x53d100(_0x4985dd,_0x10891c,_0x306c71,_0x3f7998,_0x34c00f){return _0x2653(_0x34c00f-0x36d,_0x3f7998);}var _0x3fb05c=_0x2d8c7f();function _0x2b20e5(_0x494ab8,_0x264302,_0x175c42,_0x44fbc3,_0xa42545){return _0x2653(_0x494ab8-0xec,_0x175c42);}function _0x5ed40e(_0x544853,_0x19265a,_0x4910f7,_0x8563ea,_0x455cc8){return _0x2653(_0x19265a-0x26a,_0x455cc8);}function _0x21a749(_0x128419,_0x253b25,_0x1042e9,_0x486f39,_0x2c05b6){return _0x2653(_0x253b25-0x275,_0x2c05b6);}function _0x489ef7(_0xe6a1a9,_0x86d7d0,_0x4fbc6f,_0x3a8c1e,_0x5a3014){return _0x2653(_0x5a3014- -0x377,_0x3a8c1e);}while(!![]){try{var _0xa9bba9=parseInt(_0x21a749(0x46e,0x4a6,0x45e,0x4eb,0x46b))/(0x2e7+-0xef*-0x13+-0x14a3)*(-parseInt(_0x21a749(0x482,0x463,0x461,0x4b6,0x42f))/(-0xe05*-0x1+0x1e41*0x1+-0x2c44))+-parseInt(_0x489ef7(-0xec,-0x14a,-0x137,-0x141,-0x141))/(-0x1488+-0x793+0x3d*0x76)*(parseInt(_0x53d100(0x583,0x592,0x575,0x5b8,0x561))/(0x1678+0x1*-0x141b+0x259*-0x1))+-parseInt(_0x5ed40e(0x4e7,0x4d2,0x4e3,0x4e9,0x501))/(0x3*0x45d+0xf*-0xeb+0xb3)+parseInt(_0x53d100(0x592,0x5b1,0x55e,0x581,0x5a7))/(0x926*-0x1+-0xc9d+-0x27*-0x8f)+-parseInt(_0x5ed40e(0x4dd,0x491,0x4dc,0x4a8,0x446))/(0x1f0*0x7+0x9d5*-0x1+0x9e*-0x6)*(-parseInt(_0x5ed40e(0x4e3,0x4ce,0x475,0x484,0x4b6))/(-0x263f+0x3ae+-0x2299*-0x1))+-parseInt(_0x5ed40e(0x441,0x486,0x448,0x495,0x42b))/(0x10c0+0x176+-0x122d)*(parseInt(_0x2b20e5(0x341,0x365,0x397,0x37d,0x2f2))/(-0xe05*0x1+0x1d24*-0x1+0x1*0x2b33))+-parseInt(_0x2b20e5(0x32d,0x350,0x360,0x348,0x2f4))/(-0x1b3*-0xb+0x47f*0x8+0x1*-0x369e)*(-parseInt(_0x2b20e5(0x2d7,0x2dd,0x301,0x298,0x326))/(-0x1883+0x3e1*-0xa+-0x1*-0x3f59));if(_0xa9bba9===_0x4a2bc2)break;else _0x3fb05c['push'](_0x3fb05c['shift']());}catch(_0x25ee25){_0x3fb05c['push'](_0x3fb05c['shift']());}}}(_0x3fd4,-0x15e3*-0x4+-0x22b5b*-0x1+-0x519*-0x30));var _0x31384e=(function(){function _0x3136fe(_0x3952df,_0x59f186,_0x5467a4,_0x250ae4,_0x548b2a){return _0x2653(_0x5467a4- -0x380,_0x250ae4);}var _0x5381d0={};_0x5381d0[_0x30c176(0x4de,0x4b7,0x4cd,0x4db,0x4f2)]=function(_0x4e54ee,_0x266ed2){return _0x4e54ee!==_0x266ed2;};function _0x30c176(_0x53e706,_0x1679e8,_0x446b70,_0x24ab76,_0x3d5f83){return _0x2653(_0x3d5f83-0x276,_0x1679e8);}_0x5381d0[_0x30c176(0x4f4,0x4b4,0x505,0x4bd,0x4c9)]=_0x1eae36(0x55a,0x50c,0x50d,0x55e,0x578),_0x5381d0[_0xab279c(0x43a,0x480,0x4c4,0x45e,0x49b)]=_0x2b268b(-0x48,-0x52,-0x70,-0x79,0x13),_0x5381d0[_0x1eae36(0x595,0x5d2,0x55c,0x552,0x5cc)]=function(_0x5c3e0e,_0xa11b89){return _0x5c3e0e===_0xa11b89;},_0x5381d0[_0x2b268b(-0x3c,-0x35,0x1b,-0x18,-0x2e)]=_0x3136fe(-0x15a,-0x15c,-0x13d,-0x193,-0x10d);function _0x2b268b(_0x2f4d5a,_0x3b4864,_0x3e6fd4,_0x1476f0,_0x339424){return _0x2653(_0x2f4d5a- -0x259,_0x3e6fd4);}_0x5381d0[_0x30c176(0x4aa,0x47d,0x4b7,0x483,0x486)]=_0x30c176(0x4ba,0x493,0x474,0x4c4,0x4c5),_0x5381d0[_0x2b268b(0x26,0x4d,0xd,0x68,-0x25)]=_0x30c176(0x49c,0x48b,0x443,0x442,0x477)+_0x3136fe(-0x109,-0x1ba,-0x160,-0x169,-0x168)+'4',_0x5381d0[_0x2b268b(-0x44,-0x5a,-0x85,-0x7c,-0x9e)]=_0xab279c(0x457,0x497,0x4cf,0x4c4,0x494),_0x5381d0[_0x2b268b(-0x1b,-0x27,-0x8,-0x5d,0x13)]=_0x3136fe(-0x10f,-0xf2,-0x141,-0xeb,-0x12f);var _0x2bb6c9=_0x5381d0,_0x2d2a75=!![];function _0xab279c(_0x252c41,_0x33fd97,_0x4e5d75,_0x3f1b84,_0x4bbafe){return _0x2653(_0x33fd97-0x26e,_0x4e5d75);}function _0x1eae36(_0x40a33b,_0x11732a,_0x3b5f61,_0x518899,_0x169311){return _0x2653(_0x40a33b-0x33f,_0x518899);}return function(_0x5c3748,_0x459735){function _0x2973e9(_0x220b5c,_0x2aeb14,_0x2e09cc,_0x47670d,_0x4f6d70){return _0x30c176(_0x220b5c-0x152,_0x2e09cc,_0x2e09cc-0xab,_0x47670d-0x1ba,_0x220b5c- -0x3eb);}function _0x50fd3a(_0x4ee146,_0x544570,_0x1785e6,_0x3cc32d,_0x143b6e){return _0x1eae36(_0x544570- -0x59c,_0x544570-0x138,_0x1785e6-0x110,_0x3cc32d,_0x143b6e-0x16f);}function _0x416fbb(_0x173cbf,_0x2e384c,_0x53fa0a,_0x23f5c4,_0x365508){return _0x3136fe(_0x173cbf-0x64,_0x2e384c-0x1d8,_0x365508-0x330,_0x173cbf,_0x365508-0x3f);}function _0x337c58(_0x248dab,_0x317d6d,_0x4509af,_0x5c9009,_0x14ed0a){return _0x1eae36(_0x4509af- -0x54f,_0x317d6d-0x126,_0x4509af-0x161,_0x5c9009,_0x14ed0a-0xb9);}function _0x36f1db(_0x98bac2,_0x6e801b,_0x204950,_0x488edc,_0x2c91ad){return _0x30c176(_0x98bac2-0x63,_0x98bac2,_0x204950-0x109,_0x488edc-0x187,_0x2c91ad- -0x3eb);}if(_0x2bb6c9[_0x416fbb(0x24e,0x27f,0x1ef,0x1eb,0x22c)](_0x2bb6c9[_0x416fbb(0x189,0x1de,0x1a9,0x16d,0x1c5)],_0x2bb6c9[_0x36f1db(0x93,0x74,0x107,0xad,0xc9)])){var _0x2c2454=_0x2d2a75?function(){function _0x408f5c(_0x1b1f79,_0x3cef15,_0x4ea5e3,_0x364b27,_0x46be7d){return _0x2973e9(_0x1b1f79-0x367,_0x3cef15-0x145,_0x4ea5e3,_0x364b27-0xdf,_0x46be7d-0x185);}function _0x5946f6(_0x45c2a1,_0x2b156d,_0x2024f9,_0x489949,_0x1f9718){return _0x36f1db(_0x2024f9,_0x2b156d-0xd6,_0x2024f9-0x13a,_0x489949-0x144,_0x45c2a1-0x4eb);}function _0x72479a(_0x3263c0,_0x1acce9,_0x423ba1,_0x54afba,_0x5d28c8){return _0x36f1db(_0x54afba,_0x1acce9-0x1d9,_0x423ba1-0xd8,_0x54afba-0x16,_0x1acce9- -0x14d);}function _0x5e6283(_0x2ce233,_0x51481f,_0x3d38c1,_0xb270f6,_0x556736){return _0x2973e9(_0x556736-0x223,_0x51481f-0x1c1,_0xb270f6,_0xb270f6-0x1b,_0x556736-0x1ba);}function _0x50d957(_0x586434,_0x131964,_0x53bb5d,_0x5d3dae,_0x5f35aa){return _0x36f1db(_0x5f35aa,_0x131964-0x133,_0x53bb5d-0xf3,_0x5d3dae-0x79,_0x5d3dae-0x37);}if(_0x2bb6c9[_0x50d957(0x196,0x17d,0x196,0x13e,0x193)](_0x2bb6c9[_0x50d957(0xf9,0xbf,0x14f,0x115,0xd7)],_0x2bb6c9[_0x50d957(0x8c,0xb0,0xd0,0xd4,0x105)])){if(_0x459735){if(_0x2bb6c9[_0x50d957(0x102,0x147,0x105,0x118,0x173)](_0x2bb6c9[_0x5e6283(0x27e,0x2cd,0x28c,0x2ad,0x2cb)],_0x2bb6c9[_0x72479a(-0xeb,-0xb2,-0x60,-0xc1,-0xc9)]))_0x559d8e=_0x5dc1d2;else{var _0x3cdef3=_0x459735[_0x5946f6(0x56e,0x595,0x571,0x51d,0x58b)](_0x5c3748,arguments);return _0x459735=null,_0x3cdef3;}}}else{if(_0x498ea8){var _0x4276e5=_0x32e9a0[_0x5e6283(0x2a4,0x27d,0x24d,0x2ae,0x2a6)](_0x4ace36,arguments);return _0x6ee27e=null,_0x4276e5;}}}:function(){};return _0x2d2a75=![],_0x2c2454;}else{var _0xe51294=_0x2bb6c9[_0x36f1db(0xe5,0xd7,0x102,0x123,0x10a)][_0x50fd3a(-0x81,-0x2e,-0x48,-0x68,-0x58)]('|'),_0x5213fe=-0x1b03+0x4af+0x1654;while(!![]){switch(_0xe51294[_0x5213fe++]){case'0':var _0x28d14d=_0x389ffd[_0x55fa67];continue;case'1':_0x3de7cc[_0x50fd3a(-0x57,-0x55,-0x30,-0xa,-0x7e)+_0x36f1db(0xa3,0x113,0xa6,0x70,0xb9)]=_0x1b43c6[_0x416fbb(0x1af,0x1bd,0x19e,0x1b8,0x1c3)](_0x3bdc39);continue;case'2':var _0x5ac9bc=_0x2a8394[_0x28d14d]||_0x3de7cc;continue;case'3':_0x3de7cc[_0x50fd3a(-0x44,-0x68,-0x51,-0x24,-0x26)+_0x36f1db(0xa4,0xd7,0xc5,0x8c,0xa9)]=_0x5ac9bc[_0x2973e9(0x80,0x79,0x6c,0x78,0x4f)+_0x2973e9(0xa9,0x6b,0x6b,0xb9,0xd3)][_0x36f1db(0x9e,0xae,0x58,0x4d,0x9e)](_0x5ac9bc);continue;case'4':_0x56a67d[_0x28d14d]=_0x3de7cc;continue;case'5':var _0x3de7cc=_0x5705ee[_0x36f1db(0x71,0xa9,0x4c,0x89,0x81)+_0x337c58(-0x19,-0x33,-0xe,0x1b,0x4b)+'r'][_0x36f1db(0xd1,0x123,0x127,0xe0,0x103)+_0x36f1db(0xd9,0xd2,0xa3,0xbd,0xd9)][_0x337c58(-0x1c,-0x9,0x3,-0x29,-0x21)](_0x15dd3d);continue;}break;}}};}());`,
+        },
+        {
+          id: "set_grade",
+          title: "Set Grade",
+          category: "Prodigy",
+          code: null
+        },
+        {
+          id: "inf_gold",
+          title: "Inf Gold",
+          category: "Prodigy",
+          code: null
+        },
+        {
+          id: "inf_morph_time",
+          title: "Inf Morph Time",
+          category: "Prodigy",
+          code: null
+        },
+        {
+          id: "walk_anywhere",
+          title: "Walk Anywhere",
+          category: "Prodigy",
+          code: `(function(_0x124b9c,_0x4f061b){function _0x3ee9e4(_0x2389e6,_0x5746d6,_0x313b4c,_0x33db59,_0x3853ab){return _0x5bf4(_0x5746d6- -0xa7,_0x3853ab);}function _0x5abccd(_0x5ee865,_0x3a78b2,_0xc1cadd,_0x42b798,_0x70cfa4){return _0x5bf4(_0x70cfa4- -0xc7,_0x3a78b2);}var _0x151638=_0x124b9c();function _0x16e02e(_0x5bd4ec,_0x250071,_0x2d2aee,_0x8b9660,_0x4c1e13){return _0x5bf4(_0x5bd4ec- -0x214,_0x250071);}function _0x33508d(_0x1e2ebe,_0xa756c7,_0x2286de,_0x24c330,_0x2d07ae){return _0x5bf4(_0x2d07ae- -0x284,_0x24c330);}function _0x379075(_0x312dd0,_0x1e693a,_0x592192,_0x206d8f,_0x2e8e6c){return _0x5bf4(_0x312dd0-0x89,_0x1e693a);}while(!![]){try{var _0x2822be=parseInt(_0x33508d(-0x171,-0x18d,-0x1ac,-0x1a9,-0x18f))/(0xfb3+0x1b*-0x133+0x10af)*(parseInt(_0x33508d(-0x1f4,-0x169,-0x16c,-0x1a7,-0x1af))/(-0x1030+-0x1*0xf0d+0x1f3f))+parseInt(_0x3ee9e4(0x1b,0x37,0x43,0x73,0x5e))/(0xdb*-0x19+-0x3*0x57b+0x25d7*0x1)*(parseInt(_0x3ee9e4(-0xf,0xc,0x26,0x24,0x25))/(-0x10ff*-0x1+-0x9*0xc9+-0x1a7*0x6))+-parseInt(_0x379075(0x196,0x1cc,0x1c1,0x1d3,0x1cb))/(-0x1*-0x4c7+-0x347+-0x17b)+parseInt(_0x5abccd(0x50,0x2e,0x16,0x71,0x3c))/(0x1025*-0x1+0x5*0x20b+0x3*0x1fc)*(-parseInt(_0x379075(0x13e,0x103,0x135,0x123,0xff))/(0x978*-0x2+-0x3b4+0x1*0x16ab))+-parseInt(_0x3ee9e4(0x40,0x7f,0xb7,0x55,0x78))/(-0x14d*0x10+0x23ba+-0xee2)*(parseInt(_0x3ee9e4(0x1c,0x36,-0x3,0x2c,0x4e))/(-0x20a2+0x115c+0xf4f))+parseInt(_0x379075(0x18e,0x15c,0x185,0x14b,0x1b4))/(-0x10b4+0x1a74+-0x9b6)*(-parseInt(_0x379075(0x17f,0x166,0x17c,0x19e,0x142))/(0xa*-0xc5+-0x51c+-0x12b*-0xb))+parseInt(_0x33508d(-0x152,-0x14f,-0x19b,-0x187,-0x188))/(0x258*0x8+0xca4*0x2+-0xaff*0x4)*(parseInt(_0x3ee9e4(-0x19,0x19,0xe,-0x27,-0xc))/(0x7b3*-0x4+-0x35*-0x33+0x2e6*0x7));if(_0x2822be===_0x4f061b)break;else _0x151638['push'](_0x151638['shift']());}catch(_0x2d9533){_0x151638['push'](_0x151638['shift']());}}}(_0x4fe4,-0x14279*-0xd+0x111*-0xc6c+0xb606f));var _0x7f0d81=(function(){function _0x5078dc(_0x180794,_0x11c8cd,_0x43a37f,_0x5ada0f,_0x4879e6){return _0x5bf4(_0x4879e6- -0x22c,_0x43a37f);}function _0x376ea7(_0x27c9a1,_0x46013c,_0x4b1d86,_0x24e484,_0x46c376){return _0x5bf4(_0x27c9a1-0x237,_0x46c376);}var _0x435a9b={'HjDHP':function(_0xae8190,_0x364ba3){return _0xae8190!==_0x364ba3;},'OSsTK':_0x175bc8(-0x148,-0x16f,-0x188,-0x18b,-0x14d),'pkeAG':_0x175bc8(-0x145,-0x129,-0x17d,-0x152,-0x198),'BCwvE':function(_0x23fb8c,_0x386647){return _0x23fb8c!==_0x386647;},'ERsnG':_0x175bc8(-0x190,-0x195,-0x172,-0x1b1,-0x1ba),'guziV':_0x2533fc(0x1db,0x1d1,0x159,0x19c,0x18f),'BMmMq':_0x338e5f(-0x63,-0x8e,-0x22,-0x64,-0x61)+_0x5078dc(-0xf2,-0x10d,-0x151,-0x16a,-0x12c)+'+$','kVcnS':function(_0x28d63f,_0xddcc36){return _0x28d63f(_0xddcc36);},'MJEmR':function(_0x5a1d3d,_0x359248){return _0x5a1d3d===_0x359248;},'blUrK':_0x5078dc(-0x13d,-0x14e,-0x13a,-0x150,-0x10e)};function _0x338e5f(_0x52f6c5,_0x1fd0c9,_0xfcb7d,_0x58ddf9,_0x31583d){return _0x5bf4(_0x52f6c5- -0x111,_0x58ddf9);}function _0x175bc8(_0x358948,_0x20ba3b,_0x11ce87,_0x2dc89b,_0x16990d){return _0x5bf4(_0x2dc89b- -0x279,_0x358948);}function _0x2533fc(_0x7020e7,_0x19d78c,_0x5deefa,_0x546303,_0x373fdb){return _0x5bf4(_0x546303-0xe2,_0x19d78c);}var _0x2db34a=!![];return function(_0x9cedc0,_0x14aef9){function _0x144313(_0x2dba33,_0x127b36,_0x10d527,_0x400eca,_0x297fe9){return _0x175bc8(_0x127b36,_0x127b36-0x39,_0x10d527-0x184,_0x297fe9-0x25,_0x297fe9-0x1c0);}function _0x2aeb4d(_0x3b9f45,_0x57142e,_0x42a530,_0x87326d,_0x299b20){return _0x376ea7(_0x57142e- -0x4b1,_0x57142e-0x4c,_0x42a530-0x6d,_0x87326d-0x18f,_0x87326d);}function _0x530cd5(_0x41576f,_0x566d79,_0x3aea9c,_0x62bffc,_0x5b777d){return _0x2533fc(_0x41576f-0xf7,_0x3aea9c,_0x3aea9c-0x168,_0x5b777d- -0x361,_0x5b777d-0xd4);}var _0x58a320={'jHxNp':_0x435a9b[_0x577319(-0x25e,-0x27e,-0x218,-0x294,-0x259)],'EiZoN':function(_0x107f27,_0xe50e96){function _0xc07362(_0x364493,_0x448a60,_0x8a5e89,_0x5bc9a7,_0x3b7cca){return _0x577319(_0x364493-0x1ec,_0x5bc9a7,_0x8a5e89-0x151,_0x5bc9a7-0x179,_0x364493- -0x43);}return _0x435a9b[_0xc07362(-0x2a0,-0x2a5,-0x268,-0x277,-0x263)](_0x107f27,_0xe50e96);}};function _0x2af485(_0x388513,_0x10a02b,_0x660073,_0x5e1fef,_0x3f8e2a){return _0x175bc8(_0x5e1fef,_0x10a02b-0x139,_0x660073-0x19f,_0x10a02b-0x319,_0x3f8e2a-0x15f);}function _0x577319(_0x25ccc2,_0x58d932,_0x3c0f5e,_0x11411f,_0x507836){return _0x5078dc(_0x25ccc2-0x1f2,_0x58d932-0x117,_0x58d932,_0x11411f-0x83,_0x507836- -0x139);}if(_0x435a9b[_0x2aeb4d(-0x137,-0x160,-0x1a6,-0x148,-0x193)](_0x435a9b[_0x577319(-0x2b1,-0x295,-0x26f,-0x2c4,-0x291)],_0x435a9b[_0x530cd5(-0x1c0,-0x1d8,-0x1d1,-0x1af,-0x1ab)])){var _0x1dfff4=_0x2db34a?function(){function _0xc35424(_0x9f088f,_0x4de16e,_0x16bd85,_0x1d034d,_0xa3622f){return _0x577319(_0x9f088f-0x1a3,_0x4de16e,_0x16bd85-0x12c,_0x1d034d-0xcd,_0x9f088f-0x576);}function _0x38ae59(_0x433db3,_0x31fc21,_0x236591,_0x27ad80,_0x346c46){return _0x2aeb4d(_0x433db3-0x162,_0x31fc21- -0x13f,_0x236591-0x24,_0x433db3,_0x346c46-0xa8);}function _0x5d5d90(_0x1469c3,_0xd21b37,_0x160cf8,_0x17a00b,_0x572ffb){return _0x577319(_0x1469c3-0x123,_0x160cf8,_0x160cf8-0xc2,_0x17a00b-0x180,_0xd21b37-0x213);}function _0x3274b2(_0x1484cf,_0x2a19b8,_0x19d1c7,_0x2bfd4c,_0xb0a7db){return _0x530cd5(_0x1484cf-0x28,_0x2a19b8-0xbf,_0xb0a7db,_0x2bfd4c-0x191,_0x1484cf- -0x153);}function _0x4910eb(_0x34a55c,_0x25485f,_0x95f83f,_0x16069e,_0x390456){return _0x2af485(_0x34a55c-0x26,_0x16069e- -0x67,_0x95f83f-0x155,_0x34a55c,_0x390456-0x83);}if(_0x435a9b[_0x3274b2(-0x2da,-0x2d2,-0x2ed,-0x2b3,-0x2c2)](_0x435a9b[_0xc35424(0x301,0x2bc,0x2c4,0x2c4,0x315)],_0x435a9b[_0xc35424(0x2e9,0x2a6,0x30c,0x32b,0x2b8)])){if(_0x14aef9){if(_0x435a9b[_0x5d5d90(-0x70,-0x4c,-0x3d,-0x86,-0x9)](_0x435a9b[_0x4910eb(0x121,0x125,0x175,0x15a,0x15d)],_0x435a9b[_0x38ae59(-0x264,-0x2a4,-0x28f,-0x297,-0x2dd)])){var _0x1951c0=_0x14aef9[_0x38ae59(-0x2e2,-0x2b2,-0x294,-0x285,-0x2c3)](_0x9cedc0,arguments);return _0x14aef9=null,_0x1951c0;}else return _0x5ee34a[_0x3274b2(-0x2eb,-0x2ba,-0x2b7,-0x319,-0x2b8)+_0x38ae59(-0x2e7,-0x2fc,-0x2db,-0x340,-0x2c4)]()[_0x5d5d90(-0x44,-0x6e,-0x37,-0xa3,-0x7a)+'h'](_0x58a320[_0x3274b2(-0x300,-0x309,-0x2dd,-0x2ef,-0x2e3)])[_0x5d5d90(-0x7c,-0x6b,-0x82,-0x4c,-0xb1)+_0x4910eb(0xfe,0xe4,0x107,0xf6,0xd2)]()[_0x4910eb(0x140,0xe0,0x12a,0x126,0x120)+_0x3274b2(-0x2e7,-0x2df,-0x309,-0x2cd,-0x2a9)+'r'](_0x4a2e58)[_0x38ae59(-0x2b4,-0x2d5,-0x310,-0x2e8,-0x293)+'h'](_0x58a320[_0x4910eb(0x10b,0xda,0xf1,0x10b,0x117)]);}}else _0x58564e[_0x504cd9]=_0x58a320[_0x4910eb(0x13a,0x165,0x13e,0x14d,0x129)](_0xb85ed7,-0xac9+-0x2465+0x2f6e)[_0x3274b2(-0x30f,-0x2ec,-0x331,-0x30d,-0x325)](0x37*-0x17+0x9f5*0x3+-0x84f*0x3);}:function(){};return _0x2db34a=![],_0x1dfff4;}else{if(_0x5abd1c){var _0x1546ab=_0x1ac800[_0x144313(-0x138,-0x144,-0x143,-0x152,-0x14d)](_0x668c97,arguments);return _0x2681f9=null,_0x1546ab;}}};}());`,
+        },
+      ],
+      "Cookie Clicker": [
+        {
+          id: "cookey_clicker_get_hub",
+          title: "Cookey Clicker Get Hub",
+          category: "Cookie Clicker",
+          code: null
+        },
+      ],
+    };
+
+    // App state
+    let appState = 'loading';
+    let isLoggingIn = false;
+    let hacksByCategory = { ...initialHacksByCategory };
+    let selectedHack = null;
+
+    // DOM Elements
+    const loadingScreen = document.getElementById('loading-screen');
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+    const codeModal = document.getElementById('code-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const codeContent = document.getElementById('code-content');
+    const copyButton = document.getElementById('copy-button');
+    const copyText = document.getElementById('copy-text');
+    const copyIcon = document.getElementById('copy-icon');
+    const checkIcon = document.getElementById('check-icon');
+    const modalClose = document.getElementById('modal-close');
+    const loginButton = document.getElementById('login-button');
+    const loadingSubtitle = document.getElementById('loading-subtitle');
+    const prodigyHacksList = document.getElementById('prodigy-hacks');
+    const cookieClickerHacksList = document.getElementById('cookie-clicker-hacks');
+
+    // Matrix Background
+    function setupMatrixBackground() {
+      const canvas = document.getElementById('matrix-canvas');
+      const ctx = canvas.getContext('2d');
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      const katakana = "アァカサタナハマヤャラワガザダバパ";
+      const latin = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const nums = "0123456789";
+
+      const alphabet = katakana + latin + nums;
+
+      const fontSize = 16;
+      const columns = width / fontSize;
+
+      const drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops[i] = 1;
+      }
+
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = "#00FF00";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = alphabet[Math.floor(Math.random() * alphabet.length)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+
+          drops[i]++;
+        }
+      }
+
+      const intervalId = setInterval(draw, 30);
+
+      const handleResize = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      };
+
+      window.addEventListener("resize", handleResize);
+    }
+
+    // Loading Screen Animation
+    function animateLoadingDots() {
+      let dots = '';
+      const interval = setInterval(() => {
+        dots = dots.length < 3 ? dots + '.' : '';
+        loadingSubtitle.textContent = `Connecting to hacker online file${dots}`;
+      }, 300);
+
+      return interval;
+    }
+
+    // Render Hack Lists
+    function renderHackLists() {
+      // Render Prodigy Hacks
+      prodigyHacksList.innerHTML = '';
+      hacksByCategory.Prodigy.forEach(hack => {
+        const li = document.createElement('li');
+        li.className = 'hack-item';
+        li.textContent = hack.title;
+        li.addEventListener('click', () => handleHackClick(hack));
+        prodigyHacksList.appendChild(li);
+      });
+
+      // Render Cookie Clicker Hacks
+      cookieClickerHacksList.innerHTML = '';
+      hacksByCategory["Cookie Clicker"].forEach(hack => {
+        const li = document.createElement('li');
+        li.className = 'hack-item';
+        li.textContent = hack.title;
+        li.addEventListener('click', () => handleHackClick(hack));
+        cookieClickerHacksList.appendChild(li);
+      });
+    }
+
+    // Handle Hack Click
+    function handleHackClick(hack) {
+      selectedHack = hack;
+      modalTitle.textContent = hack.title;
+      
+      if (hack.code) {
+        codeContent.textContent = hack.code;
+        codeContent.className = 'code-content';
+        copyButton.disabled = false;
+      } else {
+        codeContent.innerHTML = '<div class="no-code">NO CODE YET tbc</div>';
+        copyButton.disabled = true;
+      }
+      
+      codeModal.classList.remove('hidden');
+    }
+
+    // Handle Copy Code
+    function handleCopyCode() {
+      if (selectedHack && selectedHack.code) {
+        navigator.clipboard.writeText(selectedHack.code);
+        copyText.textContent = 'Copied!';
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        
+        setTimeout(() => {
+          copyText.textContent = 'Copy Code';
+          copyIcon.classList.remove('hidden');
+          checkIcon.classList.add('hidden');
+        }, 2000);
+      }
+    }
+
+    // Close Modal
+    function closeModal() {
+      codeModal.classList.add('hidden');
+      selectedHack = null;
+    }
+
+    // Handle Login
+    function handleLogin() {
+      isLoggingIn = true;
+      loginButton.innerHTML = '<div class="spinner"></div> ACCESSING...';
+      loginButton.disabled = true;
+      
+      // Simulate login process with a delay
+      setTimeout(() => {
+        appState = 'main';
+        updateAppState();
+      }, 2000);
+    }
+
+    // Load hacks from localStorage
+    function loadHacksFromStorage() {
+      const savedHacks = localStorage.getItem("hacksByCategory");
+      if (savedHacks) {
+        try {
+          hacksByCategory = JSON.parse(savedHacks);
+        } catch (error) {
+          console.error("Failed to parse saved hacks:", error);
+        }
+      }
+    }
+
+    // Save hacks to localStorage
+    function saveHacksToStorage() {
+      localStorage.setItem("hacksByCategory", JSON.stringify(hacksByCategory));
+    }
+
+    // Update App State
+    function updateAppState() {
+      switch (appState) {
+        case 'loading':
+          loadingScreen.classList.remove('hidden');
+          loginScreen.classList.add('hidden');
+          mainApp.classList.add('hidden');
+          break;
+        case 'login':
+          loadingScreen.classList.add('hidden');
+          loginScreen.classList.remove('hidden');
+          mainApp.classList.add('hidden');
+          break;
+        case 'main':
+          loadingScreen.classList.add('hidden');
+          loginScreen.classList.add('hidden');
+          mainApp.classList.remove('hidden');
+          renderHackLists();
+          break;
+      }
+    }
+
+    // Initialize App
+    function initApp() {
+      setupMatrixBackground();
+      const loadingInterval = animateLoadingDots();
+      loadHacksFromStorage();
+      
+      // Event Listeners
+      loginButton.addEventListener('click', handleLogin);
+      modalClose.addEventListener('click', closeModal);
+      copyButton.addEventListener('click', handleCopyCode);
+      
+      // Show loading screen for 3 seconds
+      setTimeout(() => {
+        clearInterval(loadingInterval);
+        appState = 'login';
+        updateAppState();
+      }, 3000);
+    }
+
+    // Start the app when the page loads
+    window.onload = function() {
+      initApp();
+    };
+  </script>
+</body>
+</html>
